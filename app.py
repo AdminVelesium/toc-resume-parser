@@ -1,7 +1,9 @@
 import os
 import requests
+import json
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+from processors import convert_json_string_to_dict, fields_to_be_displayed
 
 # Load environment variables from .env file
 load_dotenv()
@@ -71,14 +73,26 @@ def parse_uploaded_resume():
 
         if response.status_code == 201:
             app.logger.info("Affinda API successfully parsed resume.")
-            return jsonify(response.json())
+            output = jsonify(response.json())
+
+            resume_data = convert_json_string_to_dict(response.text)
+            # print(resume_data)
+            extracted_info = fields_to_be_displayed(resume_data)
+            #return output
+            return json.dumps(extracted_info, indent=None)
+
         else:
             app.logger.error(f"Affinda API failed: Status {response.status_code}, Message: {response.text}")
-            return jsonify({
-                "error": "Affinda API failed to parse resume.",
-                "status_code": response.status_code,
-                "message": response.text
-            }), 500
+            # return jsonify({
+            #     "error": "Affinda API failed to parse resume.",
+            #     "status_code": response.status_code,
+            #     "message": response.text
+            # }), 500
+            resume_data = convert_json_string_to_dict(response.text)
+            print(resume_data)
+            extracted_info = fields_to_be_displayed(resume_data)
+            # return extracted_info
+            return json.dumps(extracted_info, indent=None)
 
     except requests.exceptions.RequestException as req_e:
         app.logger.error(f"Network or request error when calling Affinda API: {req_e}", exc_info=True)

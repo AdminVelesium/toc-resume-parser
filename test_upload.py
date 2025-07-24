@@ -7,7 +7,7 @@ API_URL = "http://localhost:8000/parse_uploaded_resume"
 
 # Define the path to your sample resume file
 # Make sure this path is correct on your machine
-SAMPLE_RESUME_PATH = "aritra_resume.pdf" # Or full path like "/Users/youruser/Documents/sample_resume.pdf"
+SAMPLE_RESUME_PATH = "sumanth_resume.pdf" # Or full path like "/Users/youruser/Documents/sample_resume.pdf"
 
 if not os.path.exists(SAMPLE_RESUME_PATH):
     print(f"Error: Sample resume file not found at '{SAMPLE_RESUME_PATH}'. Please check the path.")
