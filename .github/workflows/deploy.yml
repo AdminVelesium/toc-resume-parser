@@ -1,0 +1,30 @@
+name: Deploy Resume Parser to GCP VM
+
+on:
+  push:
+    branches:
+      - main  # or 'Meghana' if that's your active branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Copy files to VM
+      run: |
+        ssh -o StrictHostKeyChecking=no meghanaraj@104.197.209.248 '
+          docker stop resume-app || true &&
+          docker rm resume-app || true &&
+          cd ~/toc-resume-parser &&
+          git pull origin main && 
+          docker build -t toc-resume-parser-app . &&
+          docker run -d -p 80:5000 --name resume-app toc-resume-parser-app
+        '
