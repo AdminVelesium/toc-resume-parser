@@ -1,9 +1,8 @@
-
 name: Deploy App to GCP VM
 
 on:
   push:
-    branches: [ "master" ] 
+    branches: [ "master" ]
 
 jobs:
   deploy:
@@ -13,11 +12,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
     - name: Copy files to GCP VM via SCP
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -25,26 +19,16 @@ jobs:
         username: ${{ secrets.GCP_USER }}
         key: ${{ secrets.GCP_SSH_KEY }}
         source: "."
-        target: "/home/${{ secrets.GCP_USER }}/toc-match-making"
+        target: "/home/${{ secrets.GCP_USER }}/toc-resume-parser"
 
-    - name: SSH into GCP VM and deploy
+    - name: SSH into GCP VM and deploy with Docker
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.GCP_HOST }}
         username: ${{ secrets.GCP_USER }}
         key: ${{ secrets.GCP_SSH_KEY }}
-        port: 22
         script: |
-          echo "Entering project folder"
-          cd ~/toc-match-making
-
-          echo "Removing old virtual environment"
-          rm -rf venv
-
-          echo "Creating new virtual environment"
-          python3 -m venv venv
-          source venv/bin/activate
-
-          echo "Installing dependencies"
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          cd ~/toc-resume-parser
+          docker rm -f resume-app || true
+          docker build -t resume-parser-app .
+          docker run -d -p 80:5000 --name resume-app resume-parser-app
