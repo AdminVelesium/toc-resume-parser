@@ -31,4 +31,5 @@ jobs:
           cd ~/toc-resume-parser
           docker rm -f resume-app || true
           docker build -t resume-parser-app .
-          docker run -d -p 80:5000 --name resume-app resume-parser-app
+          docker run -d -p 8000:5000 --name resume-app resume-parser-app
+
